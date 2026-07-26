@@ -1,0 +1,1720 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ShasthyaSetu Pro — Smart Report Analysis</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    
+    <!-- Tesseract.js for OCR -->
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f0f4f8;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        #loginPage {
+            width: 100%;
+            max-width: 420px;
+            padding: 20px;
+        }
+        
+        .login-card {
+            background: white;
+            border-radius: 24px;
+            padding: 48px 40px;
+            box-shadow: 0 24px 80px rgba(0,0,0,0.12);
+        }
+        
+        .login-card .logo {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        
+        .login-card .logo .logo-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #0A7E6F, #065A4F);
+            color: white;
+            font-size: 32px;
+            margin-bottom: 16px;
+        }
+        
+        .login-card .logo h1 {
+            font-size: 28px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #0A7E6F, #065A4F);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .login-card .logo p {
+            color: #718096;
+            font-size: 14px;
+            -webkit-text-fill-color: #718096;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            font-size: 13px;
+            color: #4A5568;
+            margin-bottom: 6px;
+        }
+        
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 14px 18px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 15px;
+            font-family: inherit;
+            transition: all 0.3s;
+            background: white;
+            color: #1A2A3A;
+        }
+        
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            border-color: #0A7E6F;
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(10, 126, 111, 0.1);
+        }
+        
+        .form-group textarea {
+            min-height: 60px;
+            resize: vertical;
+        }
+        
+        .btn-premium {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 14px 32px;
+            border: none;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+        }
+        
+        .btn-premium-primary {
+            background: linear-gradient(135deg, #0A7E6F, #065A4F);
+            color: white;
+        }
+        
+        .btn-premium-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(10, 126, 111, 0.35);
+        }
+        
+        .btn-premium-success {
+            background: #27AE60;
+            color: white;
+        }
+        
+        .btn-premium-secondary {
+            background: #718096;
+            color: white;
+        }
+        
+        .btn-sm {
+            padding: 10px 20px;
+            width: auto;
+        }
+        
+        .demo-cred {
+            background: #f0fdf4;
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-size: 13px;
+            color: #4A5568;
+            margin-top: 16px;
+            text-align: center;
+        }
+        
+        .demo-cred strong { color: #0A7E6F; }
+        
+        #app {
+            display: none;
+            min-height: 100vh;
+            background: #f0f4f8;
+            width: 100%;
+        }
+        
+        .app-header {
+            background: white;
+            padding: 16px 24px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .app-header .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 20px;
+            font-weight: 800;
+            color: #0A7E6F;
+        }
+        
+        .app-header .brand span { color: #1A2A3A; }
+        
+        .app-header .user-badge {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #f0fdf4;
+            padding: 6px 16px 6px 12px;
+            border-radius: 50px;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        
+        .btn-logout {
+            background: none;
+            border: none;
+            color: #718096;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 8px;
+        }
+        
+        .btn-logout:hover { color: #E74C3C; }
+        
+        .app-nav {
+            background: white;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 0 24px;
+            display: flex;
+            gap: 4px;
+            overflow-x: auto;
+            position: sticky;
+            top: 72px;
+            z-index: 99;
+        }
+        
+        .app-nav button {
+            padding: 14px 20px;
+            font-weight: 600;
+            font-size: 14px;
+            color: #718096;
+            border: none;
+            background: none;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .app-nav button:hover { color: #0A7E6F; background: #f0fdf4; }
+        .app-nav button.active { color: #0A7E6F; border-bottom-color: #0A7E6F; }
+        
+        .page-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+        
+        .page { display: none; }
+        .page.active { display: block; }
+        
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px 28px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        
+        .card h3 {
+            font-size: 18px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 20px 24px;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            border-left: 4px solid #0A7E6F;
+        }
+        
+        .stat-card .number {
+            font-size: 28px;
+            font-weight: 800;
+        }
+        
+        .stat-card .label {
+            font-size: 14px;
+            color: #718096;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        
+        @media (max-width: 640px) {
+            .form-row { grid-template-columns: 1fr; }
+            .login-card { padding: 32px 24px; }
+            .app-nav button span { display: none; }
+        }
+        
+        .upload-area {
+            border: 2px dashed #e2e8f0;
+            border-radius: 10px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .upload-area:hover {
+            border-color: #0A7E6F;
+            background: #f0fdf4;
+        }
+        
+        .upload-area i {
+            font-size: 40px;
+            color: #718096;
+            margin-bottom: 8px;
+        }
+        
+        .upload-area .ocr-status {
+            font-size: 13px;
+            color: #0A7E6F;
+            margin-top: 8px;
+            display: none;
+        }
+        
+        .upload-area .ocr-status.show { display: block; }
+        
+        .result-box {
+            padding: 24px;
+            border-radius: 12px;
+            margin-top: 12px;
+            border-left: 5px solid #0A7E6F;
+        }
+        
+        .result-box.success { background: #f0fdf4; border-left-color: #27AE60; }
+        .result-box.warning { background: #fffbeb; border-left-color: #F39C12; }
+        .result-box.danger { background: #fef2f2; border-left-color: #E74C3C; }
+        .result-box.info { background: #eff6ff; border-left-color: #3B82F6; }
+        
+        .result-box .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+        .badge-high { background: #fef2f2; color: #E74C3C; }
+        .badge-medium { background: #fffbeb; color: #F39C12; }
+        .badge-low { background: #f0fdf4; color: #27AE60; }
+        
+        .finding-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 14px;
+            flex-wrap: wrap;
+        }
+        .finding-item .value { font-weight: 600; }
+        .finding-item .normal { color: #27AE60; }
+        .finding-item .abnormal { color: #E74C3C; }
+        .finding-item .borderline { color: #F39C12; }
+        .finding-item .explanation {
+            width: 100%;
+            font-size: 13px;
+            color: #4A5568;
+            padding: 4px 0 4px 16px;
+            border-left: 2px solid #e2e8f0;
+            margin-top: 4px;
+        }
+        
+        .history-item {
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 12px;
+            border-left: 4px solid #0A7E6F;
+        }
+        
+        .history-item .date { font-size: 12px; color: #718096; }
+        .history-item .diagnosis { font-weight: 700; margin: 4px 0; }
+        
+        .patient-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .patient-item:last-child { border-bottom: none; }
+        
+        .toast-container {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .toast {
+            padding: 14px 24px;
+            border-radius: 10px;
+            color: white;
+            font-weight: 500;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+            animation: slideIn 0.4s ease;
+            max-width: 360px;
+        }
+        
+        .toast.success { background: #27AE60; }
+        .toast.error { background: #E74C3C; }
+        .toast.info { background: #0A7E6F; }
+        
+        @keyframes slideIn {
+            from { transform: translateX(120%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        .guidance-section {
+            margin-top: 16px;
+            padding: 16px;
+            background: #f8fafc;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+        }
+        .guidance-section h4 {
+            color: #0A7E6F;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .guidance-section ul {
+            padding-left: 20px;
+            margin: 8px 0;
+        }
+        .guidance-section ul li {
+            margin-bottom: 4px;
+            font-size: 14px;
+        }
+        
+        .ocr-progress {
+            display: none;
+            margin-top: 8px;
+            padding: 8px 12px;
+            background: #eff6ff;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #3B82F6;
+        }
+        .ocr-progress.show { display: block; }
+        
+        .extracted-text {
+            display: none;
+            margin-top: 12px;
+            padding: 12px;
+            background: #f8fafc;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #4A5568;
+            border: 1px solid #e2e8f0;
+            max-height: 150px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+        .extracted-text.show { display: block; }
+    </style>
+</head>
+<body>
+
+<!-- ===== LOGIN PAGE ===== -->
+<div id="loginPage">
+    <div class="login-card">
+        <div class="logo">
+            <div class="logo-icon"><i class="fas fa-heartbeat"></i></div>
+            <h1>ShasthyaSetu Pro</h1>
+            <p>স্বাস্থ্যসেতু — Smart Medical Report Analysis</p>
+        </div>
+        <form id="loginForm">
+            <div class="form-group">
+                <label><i class="fas fa-user"></i> Username</label>
+                <input type="text" id="loginUser" placeholder="Enter username" value="healthworker" required>
+            </div>
+            <div class="form-group">
+                <label><i class="fas fa-lock"></i> Password</label>
+                <input type="password" id="loginPass" placeholder="Enter password" value="password123" required>
+            </div>
+            <button type="submit" class="btn-premium btn-premium-primary">
+                <i class="fas fa-arrow-right"></i> Sign In
+            </button>
+        </form>
+        <div class="demo-cred">
+            <strong>Demo:</strong> healthworker / password123
+        </div>
+    </div>
+</div>
+
+<!-- ===== MAIN APP ===== -->
+<div id="app">
+    <header class="app-header">
+        <div class="brand">
+            <i class="fas fa-heartbeat" style="color:#0A7E6F;"></i>
+            Shasthya<span>Setu</span> <span style="font-size:12px; color:#718096;">Pro</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:12px;">
+            <div class="user-badge">
+                <i class="fas fa-user-md" style="color:#0A7E6F;"></i>
+                <span id="userNameDisplay">Health Worker</span>
+            </div>
+            <button class="btn-logout" id="logoutBtn"><i class="fas fa-sign-out-alt"></i></button>
+        </div>
+    </header>
+
+    <nav class="app-nav" id="appNav">
+        <button class="active" data-page="dashboard"><i class="fas fa-th-large"></i> <span>Dashboard</span></button>
+        <button data-page="diagnose"><i class="fas fa-microscope"></i> <span>Diagnose</span> <span style="background:#E74C3C;color:white;font-size:10px;padding:2px 8px;border-radius:50px;">OCR</span></button>
+        <button data-page="history"><i class="fas fa-history"></i> <span>History</span></button>
+        <button data-page="patients"><i class="fas fa-users"></i> <span>Patients</span></button>
+        <button data-page="medications"><i class="fas fa-prescription-bottle"></i> <span>Medications</span></button>
+    </nav>
+
+    <div class="page-content">
+        <!-- Dashboard -->
+        <div class="page active" id="page-dashboard">
+            <h2 style="margin-bottom:4px;">👋 Welcome back, <span id="greetingName">Health Worker</span></h2>
+            <p style="color:#718096; margin-bottom:24px;">Upload medical reports — AI reads and analyzes them automatically!</p>
+            <div class="stats-grid">
+                <div class="stat-card"><div class="number" id="totalPatients">0</div><div class="label">Total Patients</div></div>
+                <div class="stat-card"><div class="number" id="totalDiagnoses">0</div><div class="label">Diagnoses</div></div>
+                <div class="stat-card"><div class="number" id="highRiskCount">0</div><div class="label">High Risk</div></div>
+                <div class="stat-card"><div class="number" id="aiAnalyses">0</div><div class="label">AI Analyses</div></div>
+            </div>
+            <div class="card">
+                <h3><i class="fas fa-clock" style="color:#0A7E6F;"></i> Recent Activity</h3>
+                <div id="recentActivity"><p style="color:#718096;">No recent activity.</p></div>
+            </div>
+            <div class="card">
+                <h3><i class="fas fa-bolt" style="color:#0A7E6F;"></i> Quick Actions</h3>
+                <div style="display:flex; gap:12px; flex-wrap:wrap;">
+                    <button class="btn-premium btn-premium-primary btn-sm" onclick="navigateTo('diagnose')"><i class="fas fa-upload"></i> Upload Report</button>
+                    <button class="btn-premium btn-premium-success btn-sm" onclick="navigateTo('patients')"><i class="fas fa-user-plus"></i> Add Patient</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Diagnose -->
+        <div class="page" id="page-diagnose">
+            <h2 style="margin-bottom:20px;"><i class="fas fa-microscope" style="color:#0A7E6F;"></i> Medical Report Analysis</h2>
+            
+            <div class="card">
+                <h3><i class="fas fa-user" style="color:#0A7E6F;"></i> Patient Information</h3>
+                <form id="diagnosisForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Patient Name *</label>
+                            <input type="text" id="diagPatientName" placeholder="e.g. Yash Patel" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Age *</label>
+                            <input type="number" id="diagAge" placeholder="e.g. 21" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Gender</label>
+                            <select id="diagGender">
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Village / Location</label>
+                            <input type="text" id="diagVillage" placeholder="e.g. Mumbai">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Report Type *</label>
+                        <select id="diagReportType" required>
+                            <option value="">— Select Report Type —</option>
+                            <option value="CBC">🩸 Complete Blood Count (CBC)</option>
+                            <option value="Blood Slide">🦟 Blood Slide (Malaria/Dengue)</option>
+                            <option value="Urine Strip">🧪 Urine Test Strip (UTI)</option>
+                            <option value="Hemoglobin">🩸 Hemoglobin (Anemia)</option>
+                            <option value="Skin Image">🩹 Skin / Wound Image</option>
+                            <option value="Chest X-ray">🫁 Chest X-ray (TB)</option>
+                            <option value="Other">📋 Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Upload Report Image</label>
+                        <div class="upload-area" id="uploadArea">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <p><strong>Tap to upload</strong> or drag & drop a report image</p>
+                            <p style="font-size:12px; color:#718096;">📸 The AI will read text from your image automatically!</p>
+                            <div class="ocr-progress" id="ocrProgress">
+                                <i class="fas fa-spinner fa-spin"></i> Reading report from image...
+                            </div>
+                            <div class="ocr-status" id="ocrStatus">✅ Text extracted successfully!</div>
+                            <input type="file" id="diagFile" accept="image/*" style="display:none;">
+                        </div>
+                        <div id="uploadPreview" style="display:none; margin-top:12px;">
+                            <img id="previewImage" alt="Preview" style="max-width:100%; max-height:250px; border-radius:10px;">
+                        </div>
+                        <div class="extracted-text" id="extractedText"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Or manually paste report data (optional)</label>
+                        <textarea id="diagReportData" rows="3" placeholder="Paste report text here if image wasn't clear..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Symptoms (comma separated)</label>
+                        <input type="text" id="diagSymptoms" placeholder="e.g. fatigue, headache, fever">
+                    </div>
+                    <button type="submit" class="btn-premium btn-premium-primary" id="analyzeBtn">
+                        <i class="fas fa-robot"></i> Analyze Report
+                    </button>
+                </form>
+            </div>
+            
+            <div id="diagnosisResult" style="display:none;">
+                <div class="card">
+                    <h3><i class="fas fa-file-medical-alt" style="color:#0A7E6F;"></i> Analysis Result</h3>
+                    <div id="resultContent"></div>
+                    <div style="margin-top:16px; display:flex; gap:10px; flex-wrap:wrap;">
+                        <button class="btn-premium btn-premium-success btn-sm" onclick="saveDiagnosis()"><i class="fas fa-save"></i> Save</button>
+                        <button class="btn-premium btn-premium-secondary btn-sm" onclick="clearDiagnosis()"><i class="fas fa-undo"></i> Clear</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- History -->
+        <div class="page" id="page-history">
+            <h2 style="margin-bottom:20px;"><i class="fas fa-history" style="color:#0A7E6F;"></i> Diagnosis History</h2>
+            <div id="historyList"><p style="color:#718096;">No history yet.</p></div>
+        </div>
+
+        <!-- Patients -->
+        <div class="page" id="page-patients">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:12px;">
+                <h2><i class="fas fa-users" style="color:#0A7E6F;"></i> Patient Records</h2>
+                <button class="btn-premium btn-premium-primary btn-sm" id="addPatientBtn"><i class="fas fa-plus"></i> Add Patient</button>
+            </div>
+            <div id="patientList"><p style="color:#718096;">No patients registered.</p></div>
+            <div id="patientModal" style="display:none; background:white; border-radius:16px; padding:24px; margin-top:16px; box-shadow:0 8px 32px rgba(0,0,0,0.1);">
+                <h3 style="margin-bottom:16px;"><i class="fas fa-user-plus" style="color:#0A7E6F;"></i> Register New Patient</h3>
+                <form id="patientForm">
+                    <div class="form-row">
+                        <div class="form-group"><label>Full Name *</label><input type="text" id="patName" required></div>
+                        <div class="form-group"><label>Age *</label><input type="number" id="patAge" required></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label>Gender</label><select id="patGender"><option value="Male">Male</option><option value="Female">Female</option><option value="Other">Other</option></select></div>
+                        <div class="form-group"><label>Phone</label><input type="text" id="patPhone" placeholder="017XXXXXXXX"></div>
+                    </div>
+                    <div class="form-group"><label>Village</label><input type="text" id="patAddress" placeholder="e.g. Mumbai"></div>
+                    <div style="display:flex; gap:10px;">
+                        <button type="submit" class="btn-premium btn-premium-success btn-sm"><i class="fas fa-check"></i> Register</button>
+                        <button type="button" class="btn-premium btn-premium-secondary btn-sm" id="closePatientModal">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Medications -->
+        <div class="page" id="page-medications">
+            <h2 style="margin-bottom:20px;"><i class="fas fa-prescription-bottle" style="color:#0A7E6F;"></i> Medication Tracker</h2>
+            <div class="card">
+                <h3><i class="fas fa-plus-circle" style="color:#0A7E6F;"></i> Add Prescription</h3>
+                <form id="medicationForm">
+                    <div class="form-row">
+                        <div class="form-group"><label>Patient Name *</label><input type="text" id="medPatient" placeholder="Patient name" required></div>
+                        <div class="form-group"><label>Medication *</label><input type="text" id="medName" placeholder="e.g. Paracetamol" required></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label>Dosage</label><input type="text" id="medDosage" placeholder="e.g. 500mg"></div>
+                        <div class="form-group"><label>Frequency</label><input type="text" id="medFrequency" placeholder="e.g. 3 times daily"></div>
+                    </div>
+                    <div class="form-group"><label>Notes</label><textarea id="medNotes" rows="2"></textarea></div>
+                    <button type="submit" class="btn-premium btn-premium-primary"><i class="fas fa-prescription"></i> Add Prescription</button>
+                </form>
+            </div>
+            <div class="card">
+                <h3><i class="fas fa-list" style="color:#0A7E6F;"></i> Prescription History</h3>
+                <div id="medicationList"><p style="color:#718096;">No prescriptions yet.</p></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ============================================================ -->
+<!-- JAVASCRIPT — OCR + SMART ANALYSIS -->
+<!-- ============================================================ -->
+<script>
+(function() {
+    'use strict';
+
+    // ===== DATA STORE =====
+    function getData(key, defaultVal) {
+        try {
+            const raw = localStorage.getItem('shasthyasetu_pro_' + key);
+            return raw ? JSON.parse(raw) : defaultVal;
+        } catch { return defaultVal; }
+    }
+    function setData(key, val) {
+        localStorage.setItem('shasthyasetu_pro_' + key, JSON.stringify(val));
+    }
+
+    // ===== STATE =====
+    let patients = getData('patients', []);
+    let diagnoses = getData('diagnoses', []);
+    let medications = getData('medications', []);
+    let currentUser = getData('user', null);
+    let currentDiagnosisResult = null;
+    let isAnalyzing = false;
+    let extractedText = '';
+
+    // ===== DOM REFS =====
+    const $ = id => document.getElementById(id);
+    const loginPage = $('loginPage');
+    const app = $('app');
+    const loginForm = $('loginForm');
+    const logoutBtn = $('logoutBtn');
+    const userNameDisplay = $('userNameDisplay');
+    const greetingName = $('greetingName');
+
+    // ===== TOAST =====
+    function showToast(message, type = 'info') {
+        const container = $('toastContainer');
+        if (!container) return;
+        const toast = document.createElement('div');
+        toast.className = 'toast ' + type;
+        toast.textContent = message;
+        container.appendChild(toast);
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateX(100px)';
+            setTimeout(() => toast.remove(), 400);
+        }, 3500);
+    }
+
+    // ===== AUTH =====
+    function login(username) {
+        currentUser = { username, displayName: username.charAt(0).toUpperCase() + username.slice(1) };
+        setData('user', currentUser);
+        if (userNameDisplay) userNameDisplay.textContent = currentUser.displayName;
+        if (greetingName) greetingName.textContent = currentUser.displayName;
+        if (loginPage) loginPage.style.display = 'none';
+        if (app) app.style.display = 'block';
+        updateDashboard();
+        renderPatients();
+        renderHistory();
+        renderMedications();
+        showToast('Welcome back, ' + currentUser.displayName + '!', 'success');
+    }
+
+    function logout() {
+        currentUser = null;
+        setData('user', null);
+        if (app) app.style.display = 'none';
+        if (loginPage) loginPage.style.display = 'flex';
+        showToast('Logged out', 'info');
+    }
+
+    if (currentUser) login(currentUser.username);
+
+    if (loginForm) {
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const user = $('loginUser')?.value.trim() || '';
+            const pass = $('loginPass')?.value.trim() || '';
+            if (user && pass) login(user);
+            else showToast('Please enter username and password', 'error');
+        });
+    }
+
+    if (logoutBtn) logoutBtn.addEventListener('click', logout);
+
+    // ===== NAVIGATION =====
+    function navigateTo(pageId) {
+        document.querySelectorAll('.app-nav button').forEach(el => el.classList.remove('active'));
+        const activeNav = document.querySelector(`.app-nav button[data-page="${pageId}"]`);
+        if (activeNav) activeNav.classList.add('active');
+        document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
+        const target = $('page-' + pageId);
+        if (target) target.classList.add('active');
+        if (pageId === 'dashboard') updateDashboard();
+        if (pageId === 'history') renderHistory();
+        if (pageId === 'patients') renderPatients();
+        if (pageId === 'medications') renderMedications();
+    }
+
+    document.querySelectorAll('.app-nav button').forEach(item => {
+        item.addEventListener('click', function() { navigateTo(this.dataset.page); });
+    });
+    window.navigateTo = navigateTo;
+
+    // =============================================================
+    // ⭐ OCR: READ TEXT FROM IMAGE USING TESSERACT.JS
+    // =============================================================
+    
+    const uploadArea = $('uploadArea');
+    const fileInput = $('diagFile');
+    const previewDiv = $('uploadPreview');
+    const previewImg = $('previewImage');
+    const extractedTextDiv = $('extractedText');
+    const ocrProgress = $('ocrProgress');
+    const ocrStatus = $('ocrStatus');
+    const reportDataTextarea = $('diagReportData');
+
+    async function performOCR(imageData) {
+        try {
+            ocrProgress.classList.add('show');
+            ocrStatus.classList.remove('show');
+            
+            showToast('📖 Reading text from image...', 'info');
+            
+            // Use Tesseract.js to extract text
+            const result = await Tesseract.recognize(
+                imageData,
+                'eng+ben',  // English + Bengali support
+                {
+                    logger: (m) => {
+                        if (m.status === 'recognizing text') {
+                            // Update progress
+                        }
+                    }
+                }
+            );
+            
+            extractedText = result.data.text;
+            
+            // Show extracted text
+            if (extractedText.trim().length > 0) {
+                extractedTextDiv.textContent = extractedText;
+                extractedTextDiv.classList.add('show');
+                ocrStatus.classList.add('show');
+                ocrProgress.classList.remove('show');
+                
+                // Auto-fill the report data textarea
+                if (reportDataTextarea) {
+                    reportDataTextarea.value = extractedText;
+                }
+                
+                showToast('✅ Text extracted successfully!', 'success');
+                return extractedText;
+            } else {
+                showToast('⚠️ No text found in image. Try a clearer image.', 'error');
+                ocrProgress.classList.remove('show');
+                return '';
+            }
+        } catch (error) {
+            console.error('OCR Error:', error);
+            showToast('⚠️ OCR failed. Please paste data manually.', 'error');
+            ocrProgress.classList.remove('show');
+            return '';
+        }
+    }
+
+    // Handle file upload with OCR
+    if (uploadArea && fileInput) {
+        uploadArea.addEventListener('click', () => fileInput.click());
+        
+        fileInput.addEventListener('change', async function() {
+            if (this.files.length) {
+                const file = this.files[0];
+                if (!file.type.startsWith('image/')) {
+                    showToast('Please upload an image file', 'error');
+                    return;
+                }
+                
+                // Show preview
+                const reader = new FileReader();
+                reader.onload = async function(e) {
+                    const imageData = e.target.result;
+                    previewImg.src = imageData;
+                    previewDiv.style.display = 'block';
+                    
+                    const p = uploadArea.querySelector('p');
+                    if (p) p.innerHTML = '<strong>' + file.name + '</strong>';
+                    const icon = uploadArea.querySelector('i');
+                    if (icon) { icon.className = 'fas fa-file-image'; icon.style.color = '#0A7E6F'; }
+                    
+                    // Perform OCR
+                    await performOCR(imageData);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+
+    // =============================================================
+    // ⭐ SMART REPORT PARSER
+    // =============================================================
+    
+    function parseReportData(text) {
+        const lower = text.toLowerCase();
+        const results = {};
+        
+        // Look for common test patterns
+        const patterns = {
+            hemoglobin: [/hemoglobin[: ]*(\d+\.?\d*)/i, /hb[: ]*(\d+\.?\d*)/i, /hgb[: ]*(\d+\.?\d*)/i],
+            pcv: [/pcv[: ]*(\d+\.?\d*)/i, /packed cell volume[: ]*(\d+\.?\d*)/i, /hematocrit[: ]*(\d+\.?\d*)/i],
+            platelets: [/platelet count[: ]*(\d+)/i, /platelet[: ]*(\d+)/i, /plt[: ]*(\d+)/i],
+            wbc: [/wbc[: ]*(\d+)/i, /total wbc[: ]*(\d+)/i, /white blood cell[: ]*(\d+)/i],
+            rbc: [/rbc[: ]*(\d+\.?\d*)/i, /total rbc[: ]*(\d+\.?\d*)/i],
+            neutrophils: [/neutrophils[: ]*(\d+)/i, /neut[: ]*(\d+)/i],
+            lymphocytes: [/lymphocytes[: ]*(\d+)/i, /lymph[: ]*(\d+)/i],
+            mcv: [/mcv[: ]*(\d+\.?\d*)/i],
+            mch: [/mch[: ]*(\d+\.?\d*)/i],
+            mchc: [/mchc[: ]*(\d+\.?\d*)/i],
+            rdw: [/rdw[: ]*(\d+\.?\d*)/i],
+            eosinophils: [/eosinophils[: ]*(\d+)/i],
+            monocytes: [/monocytes[: ]*(\d+)/i],
+            basophils: [/basophils[: ]*(\d+)/i]
+        };
+        
+        for (const [key, patternsList] of Object.entries(patterns)) {
+            for (const pattern of patternsList) {
+                const match = text.match(pattern);
+                if (match) {
+                    results[key] = parseFloat(match[1]);
+                    break;
+                }
+            }
+        }
+        
+        // Check for disease indicators
+        results.hasMalaria = /malaria|plasmodium|parasite|ring|trophozoite|gametocyte/i.test(text);
+        results.hasDengue = /dengue|ns1/i.test(text);
+        results.hasUTI = /uti|leukocyte esterase|nitrite positive/i.test(text);
+        results.hasTB = /tb|tuberculosis|cavitary|infiltrate|opacity/i.test(text);
+        results.hasAnemia = /anemia|anaemia|low hemoglobin|low hb/i.test(text);
+        
+        return results;
+    }
+
+    // =============================================================
+    // ⭐ PATIENT-FRIENDLY ANALYSIS ENGINE
+    // =============================================================
+    
+    const MEDICAL_EXPLANATIONS = {
+        'Hemoglobin': {
+            normal: '✅ Your hemoglobin is NORMAL. This means your blood has the right amount of oxygen-carrying cells. Your body is getting enough oxygen to all organs.',
+            low: '⚠️ Your hemoglobin is LOW. This means you have fewer red blood cells than normal. Your body isn\'t getting enough oxygen, which can make you feel tired, weak, or dizzy. This condition is called ANEMIA.',
+            high: '⚠️ Your hemoglobin is HIGH. This means your blood has more red blood cells than normal. This can make your blood thicker, making your heart work harder. This can happen due to dehydration, smoking, or lung problems.'
+        },
+        'PCV/Hematocrit': {
+            normal: '✅ Your PCV is NORMAL. This means your blood has the right proportion of red blood cells.',
+            low: '⚠️ Your PCV is LOW. This confirms you have fewer red blood cells than normal (anemia). Your body may not be getting enough oxygen to all parts.',
+            high: '⚠️ Your PCV is HIGH. This means your blood is thicker than normal with too many red blood cells. This can increase your risk of blood clots and make your heart work harder.'
+        },
+        'Platelets': {
+            normal: '✅ Your platelet count is NORMAL. Your blood can clot properly when you get injured.',
+            low: '🚨 Your platelet count is DANGEROUSLY LOW. This means your blood may not clot properly. You might bruise easily or bleed longer than normal. SEEK MEDICAL ATTENTION if you have bleeding or bruising.',
+            high: '⚠️ Your platelet count is HIGH. This can happen due to inflammation or infection. In rare cases, it can increase blood clot risk.',
+            borderline: '⚠️ Your platelet count is BORDERLINE LOW. This is a warning sign that needs monitoring. This could be an early sign of a viral infection like dengue. Watch for easy bruising or bleeding gums.'
+        },
+        'WBC': {
+            normal: '✅ Your WBC is NORMAL. Your immune system is working well to protect you from infections.',
+            low: '⚠️ Your WBC is LOW. Your immune system is weaker than normal, making you more vulnerable to infections. This can happen due to viral infections or certain medications.',
+            high: '⚠️ Your WBC is HIGH. This usually means your body is fighting an infection. Your immune system is actively working to protect you.'
+        }
+    };
+
+    const DISEASE_GUIDANCE = {
+        'Anemia': {
+            explanation: 'Anemia means your body has fewer red blood cells than normal. Red blood cells carry oxygen to all parts of your body. When you have anemia, your body doesn\'t get enough oxygen, which can make you feel tired, weak, and short of breath.',
+            diet: [
+                '🍖 Eat iron-rich foods: red meat, chicken, fish, beans, lentils, spinach, kale',
+                '🍊 Eat vitamin C-rich foods (citrus fruits, tomatoes, bell peppers) with iron meals to help absorption',
+                '🥚 Include eggs, nuts, and fortified cereals in your daily diet',
+                '☕ Avoid tea or coffee with meals as they reduce iron absorption'
+            ],
+            lifestyle: [
+                '🛌 Rest when you feel tired — your body needs energy to make new blood cells',
+                '💧 Stay hydrated — drink at least 8 glasses of water daily',
+                '🚶 Avoid heavy physical activity when feeling weak',
+                '🏥 Follow up with your doctor for regular blood tests in 4 weeks',
+                '💊 Take iron supplements exactly as prescribed'
+            ]
+        },
+        'Malaria': {
+            explanation: 'Malaria is a serious disease caused by a parasite that enters your blood through mosquito bites. It affects your red blood cells and can cause fever, chills, sweating, and severe fatigue. It is treatable but needs immediate medical attention.',
+            diet: [
+                '💧 Drink plenty of water, coconut water, and ORS to prevent dehydration',
+                '🍲 Eat easily digestible foods like soups, khichuri, and boiled vegetables',
+                '🍌 Include bananas and other potassium-rich foods',
+                '🥛 Drink milk and curd for nutrition'
+            ],
+            lifestyle: [
+                '💊 Complete the full course of malaria medication exactly as prescribed — never miss a dose',
+                '🛏️ Take complete rest during the acute phase',
+                '🦟 Use mosquito nets and repellents to prevent further bites',
+                '🌡️ Monitor your temperature regularly',
+                '🚑 Seek immediate medical help if you experience confusion, difficulty breathing, or severe bleeding'
+            ]
+        },
+        'Dengue': {
+            explanation: 'Dengue is a viral infection spread by mosquitoes. It causes high fever, severe headache, joint pain, and can affect your platelets. Your platelet count needs close monitoring as it can drop suddenly, which can cause bleeding.',
+            diet: [
+                '💧 Drink plenty of water, coconut water, and ORS to stay hydrated',
+                '🥣 Eat light, nutritious foods like porridge and soup',
+                '🍊 Take vitamin C-rich foods to support your immune system (oranges, lemons, amla)',
+                '🥗 Include papaya leaf extract (traditional remedy — consult your doctor first)'
+            ],
+            lifestyle: [
+                '🧪 Check your platelet count every 12-24 hours',
+                '🚨 Watch for warning signs: severe abdominal pain, persistent vomiting, bleeding gums, dark urine, difficulty breathing',
+                '💊 Take paracetamol for fever — DO NOT take ibuprofen or aspirin (can increase bleeding risk)',
+                '🦟 Use mosquito net even during daytime (dengue mosquitoes bite during day)',
+                '🏥 Visit hospital immediately if you develop any warning signs'
+            ]
+        },
+        'UTI': {
+            explanation: 'UTI (Urinary Tract Infection) means you have a bacterial infection in your urinary system. Bacteria have entered your bladder or urethra, causing burning sensation, frequent urination, and lower abdominal pain.',
+            diet: [
+                '💧 Drink 8-10 glasses of water daily to flush out bacteria from your urinary system',
+                '🥛 Drink unsweetened cranberry juice (helps prevent bacteria from sticking to bladder walls)',
+                '🍋 Include vitamin C-rich foods to make urine more acidic (bacteria don\'t like acidic environment)',
+                '🚫 Avoid caffeine, alcohol, and spicy foods that can irritate your bladder'
+            ],
+            lifestyle: [
+                '💊 Complete the full course of antibiotics prescribed by your doctor — don\'t stop early even if you feel better',
+                '🚽 Urinate frequently — don\'t hold urine for long periods',
+                '🧻 Wipe from front to back (important for women)',
+                '👚 Wear cotton underwear and loose clothing to keep the area dry',
+                '🧪 Follow up with urine culture after treatment to ensure infection is cleared'
+            ]
+        },
+        'Tuberculosis': {
+            explanation: 'TB (Tuberculosis) is a serious bacterial infection that mainly affects your lungs. It is spread through coughs and sneezes. It is serious but CURABLE with proper medication. You need to complete the full treatment course (6-8 months) for complete recovery.',
+            diet: [
+                '🥩 Eat high-protein foods: eggs, meat, fish, pulses, nuts, and seeds',
+                '🍚 Include whole grains and cereals for energy (rice, wheat, oats)',
+                '🥛 Drink milk and dairy products daily for calcium and protein',
+                '🍎 Eat plenty of fruits and vegetables for vitamins and minerals'
+            ],
+            lifestyle: [
+                '💊 Take your TB medication at the same time every day — NEVER miss a dose (this can cause drug resistance)',
+                '😷 Cover your mouth when coughing or sneezing to prevent spreading to others',
+                '🏠 Ensure good ventilation in your room — open windows regularly',
+                '🧪 Get sputum tests done as scheduled by your doctor',
+                '⏳ Take the full course even if you feel better (6-8 months) — stopping early can cause relapse',
+                '🚑 Inform your doctor immediately if you experience side effects'
+            ]
+        },
+        'Normal': {
+            explanation: 'Great news! Your blood report shows NO significant abnormalities. All your values are within normal range, which indicates good health. Keep up the healthy lifestyle!',
+            diet: [
+                '🥗 Continue eating a balanced diet with all food groups',
+                '🍖 Include protein (meat, fish, eggs, pulses), carbohydrates (rice, bread), and healthy fats',
+                '🍎 Eat plenty of fruits and vegetables daily (5 servings)',
+                '💧 Stay hydrated with 8 glasses of water daily'
+            ],
+            lifestyle: [
+                '😴 Get 7-8 hours of quality sleep daily',
+                '🏃 Exercise regularly — at least 30 minutes of walking daily',
+                '🚭 Avoid smoking and limit alcohol consumption',
+                '🏥 Get regular health checkups every 6-12 months',
+                '🧘 Manage stress through meditation, deep breathing, or hobbies',
+                '🥗 Maintain a healthy weight'
+            ]
+        }
+    };
+
+    function analyzeReport(data, reportType, symptoms) {
+        // Parse the report text to extract values
+        const parsed = parseReportData(data);
+        const reportText = data.toLowerCase();
+        
+        let findings = [];
+        let risk = 'low';
+        let condition = 'Normal';
+        let description = 'No significant abnormalities detected. Your blood report shows normal values.';
+        let treatment = 'Routine follow-up as needed. Continue healthy lifestyle.';
+        let icon = '✅';
+        let confidence = '95%';
+        let guidance = DISEASE_GUIDANCE['Normal'];
+        let patientSummary = 'Your reports are normal. Keep up the good health!';
+        let diagnosisDetails = [];
+        
+        // === HEMOGLOBIN ===
+        if (parsed.hemoglobin !== undefined) {
+            const hb = parsed.hemoglobin;
+            let status, explanation;
+            if (hb < 13.0) {
+                status = 'Low';
+                explanation = MEDICAL_EXPLANATIONS['Hemoglobin'].low;
+                findings.push({ test: 'Hemoglobin', value: hb + ' g/dL', status: 'Low', norm: '13.0-17.0', explanation: explanation });
+                risk = 'medium';
+                condition = 'Anemia';
+                description = 'Your hemoglobin is low, indicating anemia. Your body doesn\'t have enough oxygen-carrying red blood cells.';
+                treatment = 'Take iron supplements (Ferrous sulfate 200mg twice daily). Eat iron-rich foods. Follow up in 4 weeks.';
+                icon = '🩸';
+                confidence = '88%';
+                patientSummary = '⚠️ Your hemoglobin is LOW. This means you have anemia. Your body isn\'t getting enough oxygen, making you feel tired and weak. Take iron supplements and eat iron-rich foods.';
+                guidance = DISEASE_GUIDANCE['Anemia'];
+                diagnosisDetails.push('Low hemoglobin (Anemia)');
+            } else if (hb > 17.0) {
+                status = 'High';
+                explanation = MEDICAL_EXPLANATIONS['Hemoglobin'].high;
+                findings.push({ test: 'Hemoglobin', value: hb + ' g/dL', status: 'High', norm: '13.0-17.0', explanation: explanation });
+                risk = 'medium';
+                condition = 'Elevated Hemoglobin';
+                description = 'Your hemoglobin is high, which can make your blood thicker. This may be due to dehydration or other conditions.';
+                treatment = 'Stay well hydrated. Evaluate for underlying causes. Follow up with your doctor.';
+                icon = '🩸';
+                confidence = '85%';
+                patientSummary = '⚠️ Your hemoglobin is HIGH. This can thicken your blood. Drink plenty of water and see your doctor.';
+                guidance = DISEASE_GUIDANCE['Normal'];
+                diagnosisDetails.push('High hemoglobin');
+            } else {
+                status = 'Normal';
+                explanation = MEDICAL_EXPLANATIONS['Hemoglobin'].normal;
+                findings.push({ test: 'Hemoglobin', value: hb + ' g/dL', status: 'Normal', norm: '13.0-17.0', explanation: explanation });
+            }
+        }
+        
+        // === PCV ===
+        if (parsed.pcv !== undefined) {
+            const pcv = parsed.pcv;
+            let status, explanation;
+            if (pcv > 50) {
+                status = 'High';
+                explanation = MEDICAL_EXPLANATIONS['PCV/Hematocrit'].high;
+                findings.push({ test: 'PCV/Hematocrit', value: pcv + '%', status: 'High', norm: '40-50%', explanation: explanation });
+                if (risk !== 'high') risk = 'medium';
+                if (condition === 'Anemia') {
+                    condition = 'Anemia with Elevated PCV';
+                    description = 'You have anemia (low hemoglobin) but your PCV is high. This can happen due to dehydration.';
+                    patientSummary = 'You have anemia (low hemoglobin) AND high PCV. This can happen due to dehydration. Drink more water!';
+                    diagnosisDetails.push('High PCV with anemia');
+                } else {
+                    condition = 'Elevated Hematocrit';
+                    description = 'Your PCV is high, which means your blood is thicker than normal.';
+                    patientSummary = 'Your PCV is HIGH, meaning your blood is thicker than normal. This can increase blood clot risk.';
+                    diagnosisDetails.push('High PCV');
+                }
+                treatment = 'Drink plenty of water. Get re-evaluated in 2 weeks.';
+            } else if (pcv < 40) {
+                status = 'Low';
+                explanation = MEDICAL_EXPLANATIONS['PCV/Hematocrit'].low;
+                findings.push({ test: 'PCV/Hematocrit', value: pcv + '%', status: 'Low', norm: '40-50%', explanation: explanation });
+                if (condition === 'Anemia') {
+                    diagnosisDetails.push('Low PCV confirms anemia');
+                }
+            } else {
+                status = 'Normal';
+                explanation = MEDICAL_EXPLANATIONS['PCV/Hematocrit'].normal;
+                findings.push({ test: 'PCV/Hematocrit', value: pcv + '%', status: 'Normal', norm: '40-50%', explanation: explanation });
+            }
+        }
+        
+        // === PLATELETS ===
+        if (parsed.platelets !== undefined) {
+            const plt = parsed.platelets;
+            let status, explanation;
+            if (plt < 150000) {
+                status = 'Low';
+                explanation = MEDICAL_EXPLANATIONS['Platelets'].low;
+                findings.push({ test: 'Platelets', value: plt.toLocaleString(), status: 'Low', norm: '150,000-410,000', explanation: explanation });
+                risk = 'high';
+                condition = 'Thrombocytopenia';
+                description = 'Your platelet count is dangerously low. This can increase bleeding risk. Immediate medical attention needed.';
+                treatment = 'Seek emergency care immediately. Monitor for bleeding signs. Do not take aspirin or ibuprofen.';
+                icon = '🩸';
+                confidence = '90%';
+                patientSummary = '🚨 Your platelets are DANGEROUSLY LOW. You need immediate medical attention. Watch for bleeding or bruising.';
+                guidance = DISEASE_GUIDANCE['Dengue'];
+                diagnosisDetails.push('Dangerously low platelets');
+            } else if (plt < 180000) {
+                status = 'Borderline';
+                explanation = MEDICAL_EXPLANATIONS['Platelets'].borderline;
+                findings.push({ test: 'Platelets', value: plt.toLocaleString(), status: 'Borderline', norm: '150,000-410,000', explanation: explanation });
+                if (risk !== 'high') risk = 'medium';
+                description = 'Your platelets are borderline low. This is a warning sign that needs monitoring.';
+                patientSummary = '⚠️ Your platelets are BORDERLINE LOW. This could be an early sign of dengue or other viral infection. Monitor for symptoms.';
+                treatment = 'Repeat platelet count in 24-48 hours. Check for other viral markers. Watch for bleeding symptoms.';
+                guidance = DISEASE_GUIDANCE['Dengue'];
+                diagnosisDetails.push('Borderline low platelets');
+            } else {
+                status = 'Normal';
+                explanation = MEDICAL_EXPLANATIONS['Platelets'].normal;
+                findings.push({ test: 'Platelets', value: plt.toLocaleString(), status: 'Normal', norm: '150,000-410,000', explanation: explanation });
+            }
+        }
+        
+        // === WBC ===
+        if (parsed.wbc !== undefined) {
+            const wbc = parsed.wbc;
+            let status, explanation;
+            if (wbc > 11000) {
+                status = 'High';
+                explanation = MEDICAL_EXPLANATIONS['WBC'].high;
+                findings.push({ test: 'WBC', value: wbc.toLocaleString(), status: 'High', norm: '4,000-11,000', explanation: explanation });
+                if (risk !== 'high') risk = 'medium';
+                if (condition === 'Anemia') {
+                    description += ' Your body may be fighting an infection.';
+                    patientSummary += ' Your body may be fighting an infection.';
+                } else {
+                    condition = 'Leukocytosis';
+                    description = 'Your white blood cells are elevated, which suggests your body is fighting an infection.';
+                    patientSummary = 'Your WBC is HIGH, which means your immune system is actively fighting an infection.';
+                }
+                treatment = 'Check for infection source. Consider blood culture.';
+                diagnosisDetails.push('Elevated WBC (fighting infection)');
+            } else if (wbc < 4000) {
+                status = 'Low';
+                explanation = MEDICAL_EXPLANATIONS['WBC'].low;
+                findings.push({ test: 'WBC', value: wbc.toLocaleString(), status: 'Low', norm: '4,000-11,000', explanation: explanation });
+                patientSummary = '⚠️ Your WBC is LOW. Your immune system is weak — you may be more vulnerable to infections.';
+                diagnosisDetails.push('Low WBC (weak immune system)');
+            } else {
+                status = 'Normal';
+                explanation = MEDICAL_EXPLANATIONS['WBC'].normal;
+                findings.push({ test: 'WBC', value: wbc.toLocaleString(), status: 'Normal', norm: '4,000-11,000', explanation: explanation });
+            }
+        }
+        
+        // === RBC ===
+        if (parsed.rbc !== undefined) {
+            const rbc = parsed.rbc;
+            if (rbc < 4.5) {
+                findings.push({ test: 'RBC Count', value: rbc + ' mill/cumm', status: 'Low', norm: '4.5-5.5', 
+                    explanation: 'Your red blood cells are low. This confirms anemia. Red blood cells carry oxygen throughout your body.' });
+                if (condition === 'Anemia') {
+                    diagnosisDetails.push('Low RBC confirms anemia');
+                }
+            } else if (rbc > 5.5) {
+                findings.push({ test: 'RBC Count', value: rbc + ' mill/cumm', status: 'High', norm: '4.5-5.5', 
+                    explanation: 'Your red blood cells are high. This can make your blood thicker.' });
+            } else {
+                findings.push({ test: 'RBC Count', value: rbc + ' mill/cumm', status: 'Normal', norm: '4.5-5.5', 
+                    explanation: 'Your red blood cell count is normal. Good!' });
+            }
+        }
+        
+        // === DISEASE DETECTION FROM TEXT ===
+        if (parsed.hasMalaria) {
+            findings.push({ test: 'Blood Slide', value: 'Positive for Malaria', status: 'Abnormal', norm: 'Negative',
+                explanation: 'Malaria parasites found in your blood. This is a serious infection that needs immediate treatment.' });
+            risk = 'high';
+            condition = 'Malaria';
+            description = 'Malaria parasites detected in your blood. This is a serious condition requiring immediate treatment.';
+            treatment = 'Start Artemisinin-based Combination Therapy (ACT) immediately. Admit for severe cases.';
+            icon = '🦟';
+            confidence = '95%';
+            patientSummary = '🚨 You have MALARIA. This is a serious infection transmitted by mosquitoes. Start treatment immediately and complete the full course.';
+            guidance = DISEASE_GUIDANCE['Malaria'];
+            diagnosisDetails.push('Malaria detected');
+        }
+        
+        if (parsed.hasDengue) {
+            findings.push({ test: 'Dengue NS1', value: 'Positive', status: 'Abnormal', norm: 'Negative',
+                explanation: 'You have tested positive for dengue virus. This is a viral infection that affects your blood cells.' });
+            if (risk !== 'high') risk = 'medium';
+            if (condition !== 'Malaria') {
+                condition = 'Dengue Fever';
+                description = 'Dengue virus detected. Monitor platelet count and watch for warning signs.';
+                treatment = 'Supportive care: Hydration, Acetaminophen for fever. DO NOT take aspirin or ibuprofen.';
+                icon = '🦟';
+                confidence = '88%';
+                patientSummary = '⚠️ You have DENGUE FEVER. Monitor your platelet count closely. Watch for warning signs like severe abdominal pain or bleeding.';
+                guidance = DISEASE_GUIDANCE['Dengue'];
+                diagnosisDetails.push('Dengue detected');
+            }
+        }
+        
+        if (parsed.hasUTI) {
+            findings.push({ test: 'Urine Test', value: 'Positive for infection', status: 'Abnormal', norm: 'Negative',
+                explanation: 'Your urine test shows signs of a bacterial infection in your urinary system.' });
+            if (risk !== 'high') risk = 'medium';
+            if (condition === 'Normal' || condition === 'Anemia') {
+                condition = condition === 'Anemia' ? 'Anemia + UTI' : 'Urinary Tract Infection';
+                description = 'You have a urinary tract infection. Bacteria have entered your urinary system.';
+                treatment = 'Start antibiotics: Nitrofurantoin or Ciprofloxacin for 5-7 days. Drink plenty of water.';
+                icon = '🧫';
+                confidence = '85%';
+                patientSummary = 'You have a UTI (urinary tract infection). Complete the antibiotic course prescribed by your doctor.';
+                guidance = DISEASE_GUIDANCE['UTI'];
+                diagnosisDetails.push('UTI detected');
+            }
+        }
+        
+        if (parsed.hasTB) {
+            findings.push({ test: 'Chest X-ray', value: 'Suspicious for TB', status: 'Abnormal', norm: 'Clear',
+                explanation: 'Your chest X-ray shows signs that could be tuberculosis (TB). This is a serious lung infection.' });
+            risk = 'high';
+            condition = 'Pulmonary Tuberculosis';
+            description = 'Your X-ray shows signs of TB. This is a serious lung infection requiring immediate treatment.';
+            treatment = 'Start 4-drug TB treatment: Isoniazid, Rifampicin, Pyrazinamide, Ethambutol for 2 months. Complete full course (6-8 months).';
+            icon = '🫁';
+            confidence = '92%';
+            patientSummary = '🚨 Your X-ray shows signs of TB (tuberculosis). This is serious but CURABLE. Start treatment immediately and never miss a dose.';
+            guidance = DISEASE_GUIDANCE['Tuberculosis'];
+            diagnosisDetails.push('TB suspected');
+        }
+        
+        // === Determine final risk ===
+        if (risk === 'low' && findings.some(f => f.status === 'Borderline')) risk = 'medium';
+        if (risk === 'low' && condition === 'Anemia') risk = 'medium';
+        if (risk === 'low' && diagnosisDetails.length > 2) risk = 'medium';
+        
+        // Build patient summary from all findings
+        if (diagnosisDetails.length > 0 && patientSummary.includes('normal')) {
+            patientSummary = '🔍 ' + diagnosisDetails.join(' · ') + '. ' + patientSummary;
+        }
+        
+        return {
+            condition: condition,
+            risk: risk,
+            icon: icon,
+            description: description,
+            treatment: treatment,
+            confidence: confidence,
+            findings: findings,
+            patientSummary: patientSummary,
+            guidance: guidance,
+            diagnosisDetails: diagnosisDetails,
+            parsedValues: parsed
+        };
+    }
+
+    // ===== DIAGNOSIS FORM HANDLER =====
+    const diagnosisForm = $('diagnosisForm');
+    const analyzeBtn = $('analyzeBtn');
+
+    if (diagnosisForm) {
+        diagnosisForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            if (isAnalyzing) return;
+            
+            const name = $('diagPatientName')?.value.trim() || '';
+            const age = $('diagAge')?.value.trim() || '';
+            const reportType = $('diagReportType')?.value || '';
+            const reportData = $('diagReportData')?.value.trim() || '';
+            const symptoms = $('diagSymptoms')?.value.trim() || '';
+            const village = $('diagVillage')?.value.trim() || '';
+            const gender = $('diagGender')?.value || '';
+
+            if (!name || !age || !reportType) {
+                showToast('Please fill in all required fields', 'error');
+                return;
+            }
+
+            // Use OCR extracted text OR manual input
+            const dataToAnalyze = reportData || extractedText || 'No data provided';
+
+            if (!dataToAnalyze || dataToAnalyze === 'No data provided') {
+                showToast('Please upload a report image or paste report data', 'error');
+                return;
+            }
+
+            isAnalyzing = true;
+            if (analyzeBtn) {
+                analyzeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analyzing Report...';
+                analyzeBtn.disabled = true;
+            }
+
+            setTimeout(() => {
+                const result = analyzeReport(dataToAnalyze, reportType, symptoms);
+                
+                currentDiagnosisResult = {
+                    patient: name,
+                    age: age,
+                    gender: gender,
+                    village: village || 'Unknown',
+                    reportType: reportType,
+                    symptoms: symptoms || 'None reported',
+                    condition: result.condition,
+                    risk: result.risk,
+                    confidence: result.confidence,
+                    description: result.description,
+                    treatment: result.treatment,
+                    icon: result.icon,
+                    findings: result.findings,
+                    patientSummary: result.patientSummary,
+                    guidance: result.guidance,
+                    diagnosisDetails: result.diagnosisDetails,
+                    parsedValues: result.parsedValues,
+                    date: new Date().toLocaleString('bn-BD', { timeZone: 'Asia/Dhaka' }),
+                    rawData: dataToAnalyze
+                };
+                
+                displayResult(currentDiagnosisResult);
+                showToast('✅ Analysis complete!', 'success');
+                isAnalyzing = false;
+                if (analyzeBtn) {
+                    analyzeBtn.innerHTML = '<i class="fas fa-robot"></i> Analyze Report';
+                    analyzeBtn.disabled = false;
+                }
+            }, 1500);
+        });
+    }
+
+    function displayResult(data) {
+        const resultDiv = $('diagnosisResult');
+        const content = $('resultContent');
+        if (!resultDiv || !content) return;
+        resultDiv.style.display = 'block';
+        
+        const riskColors = { low: 'success', medium: 'warning', high: 'danger' };
+        const riskBadges = { low: 'Low Risk', medium: 'Medium Risk', high: 'High Risk' };
+        const riskBadgeClass = { low: 'badge-low', medium: 'badge-medium', high: 'badge-high' };
+        
+        let findingsHtml = '';
+        if (data.findings && data.findings.length > 0) {
+            findingsHtml = data.findings.map(f => `
+                <div class="finding-item">
+                    <span><strong>${f.test}</strong> — ${f.value}</span>
+                    <span class="${f.status === 'Normal' ? 'normal' : f.status === 'Borderline' ? 'borderline' : 'abnormal'}">
+                        ${f.status} (Normal: ${f.norm})
+                    </span>
+                    ${f.explanation ? `<div class="explanation">💡 ${f.explanation}</div>` : ''}
+                </div>
+            `).join('');
+        }
+        
+        // Generate guidance HTML
+        let guidanceHtml = '';
+        if (data.guidance) {
+            guidanceHtml = `
+                <div class="guidance-section">
+                    <h4><i class="fas fa-lightbulb"></i> What This Means For You</h4>
+                    <p style="font-size:14px; color:#4A5568; margin-bottom:8px;">${data.patientSummary || data.description}</p>
+                    
+                    ${data.guidance.diet ? `
+                        <h4 style="margin-top:12px; font-size:15px; color:#27AE60;"><i class="fas fa-utensils"></i> 🍽️ Foods That Help</h4>
+                        <ul>${data.guidance.diet.map(item => `<li>${item}</li>`).join('')}</ul>
+                    ` : ''}
+                    
+                    ${data.guidance.lifestyle ? `
+                        <h4 style="margin-top:12px; font-size:15px; color:#3B82F6;"><i class="fas fa-heartbeat"></i> 💪 What You Should Do</h4>
+                        <ul>${data.guidance.lifestyle.map(item => `<li>${item}</li>`).join('')}</ul>
+                    ` : ''}
+                    
+                    ${data.guidance.explanation ? `
+                        <p style="margin-top:8px; font-size:14px; color:#4A5568; padding:8px; background:#f8fafc; border-radius:8px;">
+                            <strong>📚 Understanding Your Condition:</strong> ${data.guidance.explanation}
+                        </p>
+                    ` : ''}
+                </div>
+            `;
+        }
+        
+        content.innerHTML = `
+            <div class="result-box ${riskColors[data.risk]}">
+                <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:12px;">
+                    <span style="font-size:32px;">${data.icon}</span>
+                    <h4 style="font-size:20px;">${data.condition}</h4>
+                    <span class="badge ${riskBadgeClass[data.risk]}">${riskBadges[data.risk]}</span>
+                    <span style="font-size:13px; color:#718096;">🤖 Confidence: ${data.confidence}</span>
+                </div>
+                
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; font-size:14px; margin-bottom:12px; background:rgba(0,0,0,0.02); padding:12px; border-radius:8px;">
+                    <div><strong>🧑 Patient:</strong> ${data.patient}</div>
+                    <div><strong>📅 Age:</strong> ${data.age} yrs (${data.gender})</div>
+                    <div><strong>📋 Report:</strong> ${data.reportType}</div>
+                    <div><strong>📍 Location:</strong> ${data.village}</div>
+                    <div style="grid-column:1/-1;"><strong>💊 Symptoms:</strong> ${data.symptoms}</div>
+                </div>
+                
+                ${findingsHtml ? `<div style="margin:12px 0;"><strong>📊 Test Results & Explanations:</strong>${findingsHtml}</div>` : ''}
+                
+                <p style="margin:8px 0; font-size:15px;"><strong>🔍 Analysis:</strong> ${data.description}</p>
+                <p style="margin:8px 0; font-size:15px;"><strong>💊 Recommendation:</strong> ${data.treatment}</p>
+                
+                ${guidanceHtml}
+                
+                ${data.risk === 'high' ? 
+                    `<div style="color:#E74C3C;font-weight:700;margin-top:12px;padding:16px;background:#fef2f2;border-radius:8px;border:2px solid #E74C3C;text-align:center;font-size:16px;">
+                        🚑 URGENT: Immediate referral to nearest health facility required. Do not delay.
+                    </div>` : 
+                    data.risk === 'medium' ?
+                    `<div style="color:#F39C12;font-weight:600;margin-top:12px;padding:12px;background:#fffbeb;border-radius:8px;text-align:center;">
+                        ⚠️ Follow-up recommended within 7 days.
+                    </div>` :
+                    `<div style="color:#27AE60;font-weight:600;margin-top:12px;padding:12px;background:#f0fdf4;border-radius:8px;text-align:center;">
+                        ✅ Routine follow-up as needed. Maintain healthy lifestyle.
+                    </div>`
+                }
+            </div>
+        `;
+        
+        resultDiv.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    window.saveDiagnosis = function() {
+        if (!currentDiagnosisResult) {
+            showToast('No diagnosis to save', 'error');
+            return;
+        }
+        diagnoses.push({ ...currentDiagnosisResult, id: Date.now() });
+        setData('diagnoses', diagnoses);
+        
+        const existing = patients.find(p => p.name.toLowerCase() === currentDiagnosisResult.patient.toLowerCase());
+        if (!existing) {
+            patients.push({
+                name: currentDiagnosisResult.patient,
+                age: currentDiagnosisResult.age,
+                gender: currentDiagnosisResult.gender,
+                village: currentDiagnosisResult.village,
+                lastVisit: currentDiagnosisResult.date,
+                diagnoses: 1
+            });
+        } else {
+            existing.lastVisit = currentDiagnosisResult.date;
+            existing.diagnoses = (existing.diagnoses || 0) + 1;
+        }
+        setData('patients', patients);
+        renderHistory();
+        renderPatients();
+        updateDashboard();
+        showToast('✅ Diagnosis saved!', 'success');
+    };
+
+    window.clearDiagnosis = function() {
+        if (diagnosisForm) diagnosisForm.reset();
+        if (previewDiv) previewDiv.style.display = 'none';
+        const resultDiv = $('diagnosisResult');
+        if (resultDiv) resultDiv.style.display = 'none';
+        currentDiagnosisResult = null;
+        extractedText = '';
+        if (extractedTextDiv) extractedTextDiv.classList.remove('show');
+        if (ocrStatus) ocrStatus.classList.remove('show');
+        if (ocrProgress) ocrProgress.classList.remove('show');
+        if (uploadArea) {
+            const p = uploadArea.querySelector('p');
+            if (p) p.innerHTML = '<strong>Tap to upload</strong> or drag & drop a report image';
+            const icon = uploadArea.querySelector('i');
+            if (icon) { icon.className = 'fas fa-cloud-upload-alt'; icon.style.color = '#718096'; }
+        }
+        showToast('Cleared', 'info');
+    };
+
+    // ===== RENDER FUNCTIONS =====
+    function renderHistory() {
+        const container = $('historyList');
+        if (!container) return;
+        if (!diagnoses.length) {
+            container.innerHTML = '<p style="color:#718096;">No history yet.</p>';
+            return;
+        }
+        container.innerHTML = [...diagnoses].reverse().map(d => `
+            <div class="history-item">
+                <div class="date">${d.date || 'Just now'}</div>
+                <div class="diagnosis">${d.icon} ${d.condition} — <span style="color:${d.risk === 'high' ? '#E74C3C' : d.risk === 'medium' ? '#F39C12' : '#27AE60'};">${d.risk.toUpperCase()}</span></div>
+                <p style="font-size:14px;">Patient: ${d.patient} (${d.age} yrs) | ${d.reportType}</p>
+                <p style="font-size:13px; color:#718096;">${d.description}</p>
+            </div>
+        `).join('');
+    }
+
+    function renderPatients() {
+        const container = $('patientList');
+        if (!container) return;
+        if (!patients.length) {
+            container.innerHTML = '<p style="color:#718096;">No patients registered.</p>';
+            return;
+        }
+        container.innerHTML = patients.map(p => `
+            <div class="patient-item">
+                <div>
+                    <strong>${p.name}</strong>
+                    <p style="font-size:13px; color:#718096;">${p.age} yrs · ${p.gender || 'N/A'} · ${p.village || 'N/A'}</p>
+                </div>
+                <span style="font-size:12px; padding:4px 12px; border-radius:50px; background:#f0fdf4; color:#27AE60;">Active</span>
+            </div>
+        `).join('');
+    }
+
+    function renderMedications() {
+        const container = $('medicationList');
+        if (!container) return;
+        if (!medications.length) {
+            container.innerHTML = '<p style="color:#718096;">No prescriptions yet.</p>';
+            return;
+        }
+        container.innerHTML = [...medications].reverse().map(m => `
+            <div class="history-item" style="border-left-color:#F39C12;">
+                <div class="date">${m.date}</div>
+                <div style="font-weight:700;">${m.name} — ${m.patient}</div>
+                <p style="font-size:14px;">${m.dosage} · ${m.frequency}</p>
+                ${m.notes !== 'N/A' ? `<p style="font-size:13px; color:#718096;">${m.notes}</p>` : ''}
+            </div>
+        `).join('');
+    }
+
+    // ===== ADD PATIENT =====
+    let patientModalVisible = false;
+    const addPatientBtn = $('addPatientBtn');
+    const patientModal = $('patientModal');
+    const closePatientModal = $('closePatientModal');
+    const patientForm = $('patientForm');
+
+    if (addPatientBtn && patientModal) {
+        addPatientBtn.addEventListener('click', function() {
+            patientModalVisible = !patientModalVisible;
+            patientModal.style.display = patientModalVisible ? 'block' : 'none';
+        });
+        if (closePatientModal) {
+            closePatientModal.addEventListener('click', function() {
+                patientModal.style.display = 'none';
+                patientModalVisible = false;
+            });
+        }
+    }
+
+    if (patientForm) {
+        patientForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const name = $('patName')?.value.trim() || '';
+            const age = $('patAge')?.value.trim() || '';
+            const gender = $('patGender')?.value || 'Male';
+            const phone = $('patPhone')?.value.trim() || '';
+            const address = $('patAddress')?.value.trim() || '';
+            if (!name || !age) {
+                showToast('Name and age are required', 'error');
+                return;
+            }
+            patients.push({
+                name, age, gender,
+                phone: phone || 'N/A',
+                village: address || 'N/A',
+                lastVisit: new Date().toLocaleString('bn-BD', { timeZone: 'Asia/Dhaka' }),
+                diagnoses: 0
+            });
+            setData('patients', patients);
+            renderPatients();
+            updateDashboard();
+            patientForm.reset();
+            if (patientModal) patientModal.style.display = 'none';
+            patientModalVisible = false;
+            showToast('✅ Patient registered!', 'success');
+        });
+    }
+
+    // ===== MEDICATIONS =====
+    const medicationForm = $('medicationForm');
+    if (medicationForm) {
+        medicationForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const patient = $('medPatient')?.value.trim() || '';
+            const name = $('medName')?.value.trim() || '';
+            const dosage = $('medDosage')?.value.trim() || '';
+            const frequency = $('medFrequency')?.value.trim() || '';
+            const notes = $('medNotes')?.value.trim() || '';
+            if (!patient || !name) {
+                showToast('Patient and medication are required', 'error');
+                return;
+            }
+            medications.push({
+                id: Date.now(),
+                patient, name,
+                dosage: dosage || 'N/A',
+                frequency: frequency || 'N/A',
+                notes: notes || 'N/A',
+                date: new Date().toLocaleString('bn-BD', { timeZone: 'Asia/Dhaka' })
+            });
+            setData('medications', medications);
+            renderMedications();
+            medicationForm.reset();
+            showToast('💊 Prescription added!', 'success');
+        });
+    }
+
+    // ===== DASHBOARD =====
+    function updateDashboard() {
+        const totalPatients = $('totalPatients');
+        const totalDiagnoses = $('totalDiagnoses');
+        const highRiskCount = $('highRiskCount');
+        const aiAnalyses = $('aiAnalyses');
+        const recentActivity = $('recentActivity');
+        if (totalPatients) totalPatients.textContent = patients.length;
+        if (totalDiagnoses) totalDiagnoses.textContent = diagnoses.length;
+        const highRisk = diagnoses.filter(d => d.risk === 'high').length;
+        if (highRiskCount) highRiskCount.textContent = highRisk;
+        if (aiAnalyses) aiAnalyses.textContent = diagnoses.length;
+        if (recentActivity) {
+            const recent = [...diagnoses].reverse().slice(0, 5);
+            if (!recent.length) {
+                recentActivity.innerHTML = '<p style="color:#718096;">No recent activity.</p>';
+                return;
+            }
+            recentActivity.innerHTML = recent.map(d => `
+                <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #e2e8f0;">
+                    <span>${d.icon} <strong>${d.patient}</strong> — ${d.condition}</span>
+                    <span style="font-size:13px; color:#718096;">${d.date || 'Just now'}</span>
+                </div>
+            `).join('');
+        }
+    }
+
+    // ===== INIT =====
+    if (currentUser) {
+        updateDashboard();
+        renderPatients();
+        renderHistory();
+        renderMedications();
+    }
+
+    console.log('✅ ShasthyaSetu Pro — OCR + Analysis Engine loaded!');
+    console.log('📊 Patients:', patients.length, 'Diagnoses:', diagnoses.length);
+})();
+</script>
+</body>
+</html>
